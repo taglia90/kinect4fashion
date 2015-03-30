@@ -12,15 +12,40 @@ namespace Microsoft.Samples.Kinect.DepthBasics
     using System.Globalization;
     using System.IO;
     using System.Windows;
+    using System.Windows.Controls;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Diagnostics;
     using Microsoft.Kinect;
+    
+    using System.Collections.Specialized;
+    using System.Configuration;
+    using System.Runtime.InteropServices;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
+
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        CameraMode _mode = CameraMode.Color;
+
+
+        enum CameraMode
+        {
+            Color,
+            Depth
+        }
+
+        private int sogliaS=30;
+        private int sogliaM=35;// soglie per stabilire quale maglietta usare
         //inizio modifiche per aggiunta scheletro
         /// <summary>
         /// Width of output drawing
@@ -34,7 +59,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// <summary>
         /// Thickness of drawn joint lines
         /// </summary>
-        private const double JointThickness = 3;
+        private const double JointThickness = 10;
 
         /// <summary>
         /// Thickness of body center ellipse
@@ -99,7 +124,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary>
-        private WriteableBitmap colorBitmap;
+        private WriteableBitmap colorBitmap;    //Depth
+        private WriteableBitmap colorBitmap2;   //Color
 
         /// <summary>
         /// Intermediate storage for the depth data received from the camera
@@ -109,7 +135,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// <summary>
         /// Intermediate storage for the depth data converted to color
         /// </summary>
-        private byte[] colorPixels;
+        private byte[] colorPixels;     //Depth
+        private byte[] colorPixels2;    //Color
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -118,6 +145,29 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         {
             InitializeComponent();
         }
+
+
+
+        private void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
+        {
+            using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+            {
+                if (colorFrame != null)
+                {
+                    // Copy the pixel data from the image to a temporary array
+                    colorFrame.CopyPixelDataTo(this.colorPixels);
+
+                    // Write the pixel data into our bitmap
+                    this.colorBitmap2.WritePixels(
+                        new Int32Rect(0, 0, this.colorBitmap2.PixelWidth, this.colorBitmap2.PixelHeight),
+                        this.colorPixels,
+                        this.colorBitmap2.PixelWidth * sizeof(int),
+                        0);
+                }
+            }
+        }
+
+
 
         /// <summary>
         /// Execute startup tasks
@@ -134,7 +184,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             this.skeletonImageSource = new DrawingImage(this.drawingGroup);
 
             // Display the drawing using our image control
-            skeletonImage.Source = this.skeletonImageSource;
+            SkeletonImage.Source = this.skeletonImageSource;
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
             // To make your app robust against plug/unplug, 
@@ -151,8 +201,21 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             if (null != this.sensor)
             {
                 //aggiunta skeleton
-            
-                
+
+                // Turn on the color stream to receive color frames
+                this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+
+                // Allocate space to put the pixels we'll receive
+                this.colorPixels2 = new byte[this.sensor.ColorStream.FramePixelDataLength];
+
+                // This is the bitmap we'll display on-screen
+                this.colorBitmap2 = new WriteableBitmap(this.sensor.ColorStream.FrameWidth, this.sensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+
+               
+
+                // Add an event handler to be called whenever there is new color frame data
+                this.sensor.ColorFrameReady += this.SensorColorFrameReady;
+
                 
 
                 // Turn on the depth stream to receive depth frames
@@ -168,13 +231,15 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 this.colorBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                 
                 // Set the image we display to point to the bitmap where we'll put the image data
-               // this.Image.Source = this.colorBitmap;
-
+                //this.DepthImage.Source = this.colorBitmap;
+               
+                // Set the image we display to point to the bitmap where we'll put the image data
+                this.ColorImage.Source = this.colorBitmap2;
                 
                 // Add an event handler to be called whenever there is new depth frame data
                 this.sensor.DepthFrameReady += this.SensorDepthFrameReady;
 
-                this.skeletonImage.Source = this.skeletonImageSource;
+                this.SkeletonImage.Source = this.skeletonImageSource;
                 this.sensor.SkeletonStream.Enable();
                 this.sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
                 // Start the sensor!
@@ -193,6 +258,9 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
             }
         }
+
+
+      
 
         /// <summary>
         /// Execute shutdown tasks
@@ -270,7 +338,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
 
                     // Get the min and max reliable depth for the current frame
                     int minDepth = depthFrame.MinDepth;
-                    int maxDepth = 1000;
+                    int maxDepth = 2500;
 
                     // Convert the depth to RGB
                     int colorPixelIndex = 0;
@@ -288,7 +356,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                         // Consider using a lookup table instead when writing production code.
                         // See the KinectDepthViewer class used by the KinectExplorer sample
                         // for a lookup table example.
-                        byte intensity = (byte)(depth >= minDepth && depth <= maxDepth ? depth : 0);
+                        byte intensity = (byte)(depth >= minDepth && depth <= maxDepth ? depth : 255);
 
                         // Write out blue byte
                         this.colorPixels[colorPixelIndex++] = intensity;
@@ -301,7 +369,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                         this.colorPixels[colorPixelIndex++] = intensity;
                         // We're outputting BGR, the last byte in the 32 bits is unused so skip it
                         // If we were outputting BGRA, we would write alpha here.
-                        //++colorPixelIndex;
+                       // ++colorPixelIndex;
                     }
 
                     // Write the pixel data into our bitmap
@@ -315,8 +383,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         }
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
-            // Render Torso
-            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
+           // Render Torso
+          /*  this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
@@ -342,12 +410,61 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             // Right Leg
             this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
             this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);*/
 
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
             {
+                // 3D coordinates in meters
+                SkeletonPoint skeletonPoint = joint.Position;
+
+                // 2D coordinates in pixels
+                Point point = new Point();
+
+
+                if (_mode == CameraMode.Color)
+                {
+                    // Skeleton-to-Color mapping
+                    ColorImagePoint colorPoint = sensor.CoordinateMapper.MapSkeletonPointToColorPoint(skeletonPoint, ColorImageFormat.RgbResolution640x480Fps30);
+
+                    point.X = colorPoint.X;
+                    point.Y = colorPoint.Y;
+                }
+                else if (_mode == CameraMode.Depth) // Remember to change the Image and Canvas size to 320x240.
+                {
+                    // Skeleton-to-Depth mapping
+                    DepthImagePoint depthPoint = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skeletonPoint, DepthImageFormat.Resolution320x240Fps30);
+
+                    point.X = depthPoint.X;
+                    point.Y = depthPoint.Y;
+                }
+
+
+                //
                 Brush drawBrush = null;
+              var shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
+                   var shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
+                if (joint.JointType==JointType.ShoulderCenter)
+                {
+                 
+                        
+                    Canvas.SetLeft(reggisenoImage, point.X - reggisenoImage.Width / 2);
+                    Canvas.SetTop(reggisenoImage, point.Y - reggisenoImage.Height / 2);
+                  //  drawingContext.DrawImage(reggisenoImage.Source, new Rect(point.X-(reggisenoImage.Width/2),point.Y-reggisenoImage.Height,reggisenoImage.Width,reggisenoImage.Height));
+                   //calcolo i 3 casi per le 3 taglie di magliette, una per ogni IF
+                 /*   if (Length(shoulderCenter, shoulderLeft) > sogliaS)
+                    {
+                        //disegno la M
+                    }
+                    else if (Length(shoulderCenter, shoulderLeft) > sogliaM)
+                    { //disegno la L
+                    }
+                    else { 
+                        //disegno la S
+                    }
+                    */
+                }
+
 
                 if (joint.TrackingState == JointTrackingState.Tracked)
                 {
@@ -357,14 +474,24 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 {
                     drawBrush = this.inferredJointBrush;
                 }
-
+                
                 if (drawBrush != null)
                 {
-                    drawingContext.DrawEllipse(drawBrush, null, this.SkeletonPointToScreen(joint.Position), JointThickness, JointThickness);
+                    drawingContext.DrawEllipse(drawBrush, null, point, JointThickness, JointThickness);
                 }
             }
         }
+        private static double Length(params Joint[] joints)
+        {
+            double length = 0;
 
+            for (int index = 0; index < joints.Length - 1; index++)
+            {
+                length += Length(joints[index], joints[index + 1]);
+            }
+
+            return length;
+        }
         /// <summary>
         /// Maps a SkeletonPoint to lie within our render space and converts to Point
         /// </summary>
