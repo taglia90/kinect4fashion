@@ -26,7 +26,17 @@ namespace Microsoft.Samples.Kinect.DepthBasics
     using System.Text;
     using System.Threading.Tasks;
 
-
+    using System.Windows.Controls;
+    using System.Windows.Data;
+    using System.Windows.Documents;
+    using System.Windows.Input;
+    using System.Windows.Media;
+    using System.Windows.Media.Imaging;
+    using System.Windows.Navigation;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+   
 
 
     /// <summary>
@@ -435,8 +445,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                     // Skeleton-to-Depth mapping
                     DepthImagePoint depthPoint = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skeletonPoint, DepthImageFormat.Resolution320x240Fps30);
 
-                    point.X = depthPoint.X;
-                    point.Y = depthPoint.Y;
+                 //   point.X = depthPoint.X;
+                  //  point.Y = depthPoint.Y;
                 }
 
 
@@ -446,10 +456,17 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                    var shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
                 if (joint.JointType==JointType.ShoulderCenter)
                 {
-                 
-                        
+
+                 //   Joint scaledJoint = joint.ScaleTo(1280, 720, .3f, .3f);
+                   
+                    
+
+                   // Canvas.SetLeft(element, scaledJoint.Position.X);
+                  //  Canvas.SetTop(element, scaledJoint.Position.Y); 
+
                     Canvas.SetLeft(reggisenoImage, point.X - reggisenoImage.Width / 2);
-                    Canvas.SetTop(reggisenoImage, point.Y - reggisenoImage.Height / 2);
+                    Canvas.SetTop(reggisenoImage, point.Y -15);// - reggisenoImage.Height / 2);
+                   
                   //  drawingContext.DrawImage(reggisenoImage.Source, new Rect(point.X-(reggisenoImage.Width/2),point.Y-reggisenoImage.Height,reggisenoImage.Width,reggisenoImage.Height));
                    //calcolo i 3 casi per le 3 taglie di magliette, una per ogni IF
                  /*   if (Length(shoulderCenter, shoulderLeft) > sogliaS)
