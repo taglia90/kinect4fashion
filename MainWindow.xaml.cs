@@ -17,7 +17,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
     using System.Windows.Media.Imaging;
     using System.Diagnostics;
     using Microsoft.Kinect;
-    
+
     using System.Collections.Specialized;
     using System.Configuration;
     using System.Runtime.InteropServices;
@@ -36,7 +36,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-   
+
 
 
     /// <summary>
@@ -54,8 +54,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             Depth
         }
 
-        private int sogliaS=30;
-        private int sogliaM=35;// soglie per stabilire quale maglietta usare
+        private int sogliaS = 30;
+        private int sogliaM = 35;// soglie per stabilire quale maglietta usare
         //inizio modifiche per aggiunta scheletro
         /// <summary>
         /// Width of output drawing
@@ -106,7 +106,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// </summary>        
         private readonly Pen inferredBonePen = new Pen(Brushes.Gray, 1);
 
-  
+
         /// <summary>
         /// Drawing group for skeleton rendering output
         /// </summary>
@@ -134,8 +134,8 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary>
-        private WriteableBitmap colorBitmap;    //Depth
-        private WriteableBitmap colorBitmap2;   //Color
+        private WriteableBitmap depthBitmap;    //Depth
+        private WriteableBitmap colorBitmap;   //Color
 
         /// <summary>
         /// Intermediate storage for the depth data received from the camera
@@ -168,10 +168,10 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                     colorFrame.CopyPixelDataTo(this.colorPixels);
 
                     // Write the pixel data into our bitmap
-                    this.colorBitmap2.WritePixels(
-                        new Int32Rect(0, 0, this.colorBitmap2.PixelWidth, this.colorBitmap2.PixelHeight),
+                    this.colorBitmap.WritePixels(
+                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
                         this.colorPixels,
-                        this.colorBitmap2.PixelWidth * sizeof(int),
+                        this.colorBitmap.PixelWidth * sizeof(int),
                         0);
                 }
             }
@@ -219,33 +219,33 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 this.colorPixels2 = new byte[this.sensor.ColorStream.FramePixelDataLength];
 
                 // This is the bitmap we'll display on-screen
-                this.colorBitmap2 = new WriteableBitmap(this.sensor.ColorStream.FrameWidth, this.sensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+                this.colorBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth, this.sensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
 
-               
+
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.ColorFrameReady += this.SensorColorFrameReady;
 
-                
+
 
                 // Turn on the depth stream to receive depth frames
                 this.sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-                
+
                 // Allocate space to put the depth pixels we'll receive
                 this.depthPixels = new DepthImagePixel[this.sensor.DepthStream.FramePixelDataLength];
-                
+
                 // Allocate space to put the color pixels we'll create
                 this.colorPixels = new byte[this.sensor.DepthStream.FramePixelDataLength * sizeof(int)];
 
                 // This is the bitmap we'll display on-screen
-                this.colorBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
-                
+                this.depthBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+
                 // Set the image we display to point to the bitmap where we'll put the image data
-                //this.DepthImage.Source = this.colorBitmap;
-               
+                //this.DepthImage.Source = this.depthBitmap;
+
                 // Set the image we display to point to the bitmap where we'll put the image data
-                this.ColorImage.Source = this.colorBitmap2;
-                
+                this.ColorImage.Source = this.colorBitmap;
+
                 // Add an event handler to be called whenever there is new depth frame data
                 this.sensor.DepthFrameReady += this.SensorDepthFrameReady;
 
@@ -270,7 +270,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         }
 
 
-      
+
 
         /// <summary>
         /// Execute shutdown tasks
@@ -379,48 +379,48 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                         this.colorPixels[colorPixelIndex++] = intensity;
                         // We're outputting BGR, the last byte in the 32 bits is unused so skip it
                         // If we were outputting BGRA, we would write alpha here.
-                       // ++colorPixelIndex;
+                        // ++colorPixelIndex;
                     }
 
                     // Write the pixel data into our bitmap
-                  this.colorBitmap.WritePixels(
-                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                        this.colorPixels,
-                        this.colorBitmap.PixelWidth * sizeof(int),
-                        0);
+                    this.depthBitmap.WritePixels(
+                          new Int32Rect(0, 0, this.depthBitmap.PixelWidth, this.depthBitmap.PixelHeight),
+                          this.colorPixels,
+                          this.depthBitmap.PixelWidth * sizeof(int),
+                          0);
                 }
             }
         }
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
-           // Render Torso
-          /*  this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
-            this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
+            // Render Torso
+            /*  this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
+              this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
+              this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
+              this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
+              this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
 
-            // Left Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
+              // Left Arm
+              this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
 
-            // Right Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
-            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
+              // Right Arm
+              this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
+              this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
+              this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
 
-            // Left Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
+              // Left Leg
+              this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
+              this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
 
-            // Right Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);*/
+              // Right Leg
+              this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
+              this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
+              this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);*/
 
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
@@ -445,41 +445,41 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                     // Skeleton-to-Depth mapping
                     DepthImagePoint depthPoint = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skeletonPoint, DepthImageFormat.Resolution320x240Fps30);
 
-                 //   point.X = depthPoint.X;
-                  //  point.Y = depthPoint.Y;
+                    //   point.X = depthPoint.X;
+                    //  point.Y = depthPoint.Y;
                 }
 
 
                 //
                 Brush drawBrush = null;
-              var shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
-                   var shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
-                if (joint.JointType==JointType.ShoulderCenter)
+                var shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
+                var shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
+                if (joint.JointType == JointType.ShoulderCenter)
                 {
 
-                 //   Joint scaledJoint = joint.ScaleTo(1280, 720, .3f, .3f);
-                   
-                    
+                    //   Joint scaledJoint = joint.ScaleTo(1280, 720, .3f, .3f);
 
-                   // Canvas.SetLeft(element, scaledJoint.Position.X);
-                  //  Canvas.SetTop(element, scaledJoint.Position.Y); 
+
+
+                    // Canvas.SetLeft(element, scaledJoint.Position.X);
+                    //  Canvas.SetTop(element, scaledJoint.Position.Y); 
 
                     Canvas.SetLeft(reggisenoImage, point.X - reggisenoImage.Width / 2);
-                    Canvas.SetTop(reggisenoImage, point.Y -15);// - reggisenoImage.Height / 2);
-                   
-                  //  drawingContext.DrawImage(reggisenoImage.Source, new Rect(point.X-(reggisenoImage.Width/2),point.Y-reggisenoImage.Height,reggisenoImage.Width,reggisenoImage.Height));
-                   //calcolo i 3 casi per le 3 taglie di magliette, una per ogni IF
-                 /*   if (Length(shoulderCenter, shoulderLeft) > sogliaS)
-                    {
-                        //disegno la M
-                    }
-                    else if (Length(shoulderCenter, shoulderLeft) > sogliaM)
-                    { //disegno la L
-                    }
-                    else { 
-                        //disegno la S
-                    }
-                    */
+                    Canvas.SetTop(reggisenoImage, point.Y - 15);// - reggisenoImage.Height / 2);
+
+                    //  drawingContext.DrawImage(reggisenoImage.Source, new Rect(point.X-(reggisenoImage.Width/2),point.Y-reggisenoImage.Height,reggisenoImage.Width,reggisenoImage.Height));
+                    //calcolo i 3 casi per le 3 taglie di magliette, una per ogni IF
+                    /*   if (Length(shoulderCenter, shoulderLeft) > sogliaS)
+                       {
+                           //disegno la M
+                       }
+                       else if (Length(shoulderCenter, shoulderLeft) > sogliaM)
+                       { //disegno la L
+                       }
+                       else { 
+                           //disegno la S
+                       }
+                       */
                 }
 
 
@@ -491,7 +491,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 {
                     drawBrush = this.inferredJointBrush;
                 }
-                
+
                 if (drawBrush != null)
                 {
                     drawingContext.DrawEllipse(drawBrush, null, point, JointThickness, JointThickness);
@@ -603,7 +603,18 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 this.statusBarText.Text = string.Format(CultureInfo.InvariantCulture, "{0} {1}", Properties.Resources.ScreenshotWriteFailed, path);
             }
         }
-        
+
+        private void ButtonArmadioClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ButtonAssociaClick(object sender, RoutedEventArgs e)
+        {
+            QRWindow qrw = new QRWindow();
+            qrw.Show();
+        }
+
         /// <summary>
         /// Handles the checking or unchecking of the near mode combo box
         /// </summary>
@@ -616,14 +627,14 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                 // will not function on non-Kinect for Windows devices
                 try
                 {
-                    if (this.checkBoxNearMode.IsChecked.GetValueOrDefault())
-                    {
-                        this.sensor.DepthStream.Range = DepthRange.Near;
-                    }
-                    else
-                    {
-                        this.sensor.DepthStream.Range = DepthRange.Default;
-                    }
+                    // if (this.checkBoxNearMode.IsChecked.GetValueOrDefault())
+                    //{
+                    //    this.sensor.DepthStream.Range = DepthRange.Near;
+                    //}
+                    //else
+                    //{
+                    this.sensor.DepthStream.Range = DepthRange.Default;
+                    //}
                 }
                 catch (InvalidOperationException)
                 {
