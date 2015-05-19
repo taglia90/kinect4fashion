@@ -7,8 +7,6 @@
 namespace Microsoft.Samples.Kinect.DepthBasics
 {
     using System;
-
-    //ciiao
     using System.Globalization;
     using System.IO;
     using System.Windows;

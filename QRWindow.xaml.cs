@@ -31,8 +31,15 @@ namespace Microsoft.Samples.Kinect.DepthBasics
 
         private void renderQRCode()
         {
+            DB.DBConnect classeDB = new DB.DBConnect();
+            int idUtente = classeDB.CreaUtenteVuoto();
+            if (idUtente == 0)
+            {
+                this.Close();//chiudo questa finestra
+            }
+
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeGenerator.QRCode qrCode = qrGenerator.CreateQrCode("www.swimmy.it", QRCodeGenerator.ECCLevel.M);
+            QRCodeGenerator.QRCode qrCode = qrGenerator.CreateQrCode(idUtente.ToString(), QRCodeGenerator.ECCLevel.M);
             Bitmap bitmap = qrCode.GetGraphic(20);
             BitmapImage bitmapImage = new BitmapImage();
             using (MemoryStream memory = new MemoryStream())
