@@ -462,10 +462,10 @@ namespace Microsoft.Samples.Kinect.DepthBasics
                     // Canvas.SetLeft(element, scaledJoint.Position.X);
                     //  Canvas.SetTop(element, scaledJoint.Position.Y); 
 
-                    Canvas.SetLeft(reggisenoImage, point.X - reggisenoImage.Width / 2);
-                    Canvas.SetTop(reggisenoImage, point.Y - 15);// - reggisenoImage.Height / 2);
+                    Canvas.SetLeft(maglietta, point.X - maglietta.Width / 2);
+                    Canvas.SetTop(maglietta, point.Y - 15);// - maglietta.Height / 2);
 
-                    //  drawingContext.DrawImage(reggisenoImage.Source, new Rect(point.X-(reggisenoImage.Width/2),point.Y-reggisenoImage.Height,reggisenoImage.Width,reggisenoImage.Height));
+                    //  drawingContext.DrawImage(maglietta.Source, new Rect(point.X-(maglietta.Width/2),point.Y-maglietta.Height,maglietta.Width,maglietta.Height));
                     //calcolo i 3 casi per le 3 taglie di magliette, una per ogni IF
                     /*   if (Length(shoulderCenter, shoulderLeft) > sogliaS)
                        {

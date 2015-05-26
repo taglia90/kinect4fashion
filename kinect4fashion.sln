@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractionGallery-WPF", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlsBasics-WPF", "..\ControlsBasics-WPF\ControlsBasics-WPF.csproj", "{69BB0E72-9FA9-43B7-9673-1BCB6F7F3877}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualClothing", "..\VirtualClothing\VirtualClothing.csproj", "{F08DAE98-E079-48FA-9575-23C5299DF968}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,18 @@ Global
 		{69BB0E72-9FA9-43B7-9673-1BCB6F7F3877}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{69BB0E72-9FA9-43B7-9673-1BCB6F7F3877}.Release|x64.ActiveCfg = Release|Any CPU
 		{69BB0E72-9FA9-43B7-9673-1BCB6F7F3877}.Release|x86.ActiveCfg = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|x64.ActiveCfg = Release|Any CPU
+		{F08DAE98-E079-48FA-9575-23C5299DF968}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

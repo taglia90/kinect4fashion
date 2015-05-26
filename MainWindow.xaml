@@ -91,7 +91,7 @@
                         <Canvas Name="MainCanvas" Width="640" Height="480" Margin="0">
                             <!--<Polygon Fill="LightBlue" Name="reggisenoImage" 
          Points="10,20,240,20,240,80,180,80,180,280,80,280,80,80,10,80" />-->
-                            <Image Height="250" Name="reggisenoImage" Stretch="Fill" Width="250" Source="/images/S.png" />
+                            <Image Height="250" Name="maglietta" Stretch="Fill" Width="250" Source="/images/S.png" />
                             <Button Style="{StaticResource SnapshotButton}" Content="Associa" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Name="buttonAssocia"  Click="ButtonAssociaClick" Canvas.Left="15" Canvas.Top="10" />
                             <Button Style="{StaticResource SnapshotButton}" Content="Armadio" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Name="buttonArmadio"  Click="ButtonArmadioClick" Canvas.Left="265" Canvas.Top="10" />
                             <Button Style="{StaticResource SnapshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Name="buttonScreenshot"  Click="ButtonScreenshotClick"  Canvas.Left="511" Canvas.Top="10"  />

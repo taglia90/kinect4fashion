@@ -39,7 +39,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             }
 
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeGenerator.QRCode qrCode = qrGenerator.CreateQrCode(idUtente.ToString(), QRCodeGenerator.ECCLevel.M);
+            QRCodeGenerator.QRCode qrCode = qrGenerator.CreateQrCode("1111", QRCodeGenerator.ECCLevel.M);//idUtente.ToString()
             Bitmap bitmap = qrCode.GetGraphic(20);
             BitmapImage bitmapImage = new BitmapImage();
             using (MemoryStream memory = new MemoryStream())
